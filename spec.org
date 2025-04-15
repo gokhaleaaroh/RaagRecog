@@ -2,7 +2,7 @@
 
 * Goal:
 + Create a machine learning classifier that does the following:
-  - Given a fixed length audio sample from a piece of Hindustani classical music, classify it as one of the following four Raags:
+  - Given a fixed length audio sample from a *vocal* piece of Hindustani classical music, classify it as one of the following four Raags:
     - Yaman
     - Darbari Kanada
     - Marwa

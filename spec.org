@@ -1,0 +1,39 @@
+#+TITLE: Raag Recog Spec
+
+* Goal:
++ Create a machine learning classifier that does the following:
+  - Given a fixed length audio sample from a piece of Hindustani classical music, classify it as one of the following four Raags:
+    - Yaman
+    - Darbari Kanada
+    - Marwa
+    - Kalavati
+
+* Data Collection:
+- For now, download large and varied audio recordings of these four raags from youtube.
+
+* Architecture
+Current pipeline idea:
+
+Audio Form -> Pitch Tokens -> 64-vector embedding -> LSTM -> Global Pooling -> Dense Layer -> Softmax (4 units, 4 raags)
+
+** Audio Form -> Pitch Tokens
+- Librosa Fundamental frequency (F0) estimation using probabilistic YIN (pYIN). (librosa.pyin)
+- Librosa Hz to Midi
+- (Potential relative pitch preprocessing by subtracting median pitch from everything?)
+
+** 64-vector embedding
+- Matrix embedding to convert midi to vectors
+- Mask zeroes to allow for variable length input
+
+** LSTM
+- Use built in LSTM module from a popular library
+
+** Global Pooling
+- Use global meaning pooling to reduce LSTM output down to a vector
+
+** Dense Layer
+- Use built in Dense Layer module
+
+** Output layer
+- 4 neurons
+- Softmax at the end.

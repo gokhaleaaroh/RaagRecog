@@ -18,5 +18,4 @@ class RaagRecog(nn.Module):
         x = self.global_pool(x).squeeze(-1)  # (batch, hidden_dim)
         x = self.fc1(x)
         x = self.fc2(x)
-        x = torch.softmax(x, dim=1)
         return x

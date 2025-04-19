@@ -71,7 +71,7 @@ data_loader = DataLoader(dataset, batch_size=32, shuffle=True)
 recognizer = RaagRecog(vocab_size, EMBEDDING_DIM, hidden_dim=64, fc_dim=64,
                        num_classes=4, padding_idx=0)
 
-loss_func = torch.nn.BCEWithLogitsLoss()
+loss_func = torch.nn.CrossEntropyLoss()
 optimizer = optim.Adam(recognizer.parameters(), lr=0.001)
 
 num_epochs = 1000
@@ -91,8 +91,10 @@ for epoch in range(num_epochs):
 
     avg_loss = curr_loss/len(data_loader)
 
-    if epoch % 10 == 0:
+    if epoch % 50 == 0:
         print(f"Epoch {epoch + 1}, Loss: {avg_loss:.4f}")
+    if (epoch + 1) % 100 == 0:
+        torch.save(recognizer.state_dict(), f"model_weights{epoch}.pth")
 
 
 torch.save(recognizer.state_dict(), "model_weights.pth")

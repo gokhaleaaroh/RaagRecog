@@ -22,6 +22,4 @@ def conv(input_dir, output_dir):
             ])
 
 
-conv('./Training_Data/Kalavati/', './Training_Data/Kalavati/Kalavati-wav/')
-
-conv('./Training_Data/Marwa/', './Training_Data/Marwa/Marwa-wav/')
+conv('./Training_Data/Yaman-discard/', './Training_Data/Yaman-discard/Yaman-wav/')

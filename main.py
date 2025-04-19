@@ -41,9 +41,8 @@ if os.path.exists("./model_weights.pth"):
                            fc_dim=64, num_classes=4, padding_idx=0)
 
     print("Created Model!")
-    recognizer.load_state_dict(torch.load("model_weights.pth"))
+    recognizer.load_state_dict(torch.load("model_weights299.pth"))
     recognizer.eval()
-
     yaman_units = load_pitch_units('./Training_Data/Yaman/segments/units.pkl')
     padded_yaman = pad_sequences(yaman_units, 1729)
 
@@ -56,12 +55,15 @@ if os.path.exists("./model_weights.pth"):
     kalavati_units = load_pitch_units('./Training_Data/Kalavati/segments/units.pkl')
     padded_kalavati = pad_sequences(kalavati_units, 1729)
 
-    input_tensor = torch.tensor(padded_marwa, dtype=torch.long) + offset
+    yaman_discard_units = load_pitch_units('./Training_Data/Yaman-discard/segments/units.pkl')
+    padded_yaman_discard = pad_sequences(yaman_discard_units, 1729)
+
+    input_tensor = torch.tensor(padded_yaman_discard, dtype=torch.long) + offset
 
     with torch.no_grad():
         output = recognizer(input_tensor)
         total_correct = 0
-        for out in output:
-            if torch.argmax(out) == 2:
-                total_correct += 1
-        print(f"Percent Correct: {total_correct/len(output)}")
+        percent_array = np.array([0.0, 0.0, 0.0, 0.0])
+        for ind in range(len(output)):
+            if (torch.argmax(output[ind]) != 0):
+                print(ind)

@@ -6,10 +6,11 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 dir_list = [
-    "./Training_Data/Yaman/segments",
-    "./Training_Data/Darbari/segments",
-    "./Training_Data/Kalavati/segments",
-    "./Training_Data/Marwa/segments",
+    # "./Training_Data/Yaman/segments",
+    # "./Training_Data/Darbari/segments",
+    # "./Training_Data/Kalavati/segments",
+    # "./Training_Data/Marwa/segments",
+    "./Training_Data/Yaman-discard/segments",
 ]
 
 
@@ -64,11 +65,11 @@ def parallel_preprocess(directory, num_workers):
     return list(results)
 
 
-# for dir_name in dir_list:
-#     data = parallel_preprocess(dir_name, 8)
-#     output_file = f"{dir_name}/units.pkl"
-#     with open(output_file, "wb") as f:
-#         pickle.dump(data, f)
+for dir_name in dir_list:
+    data = parallel_preprocess(dir_name, 8)
+    output_file = f"{dir_name}/units.pkl"
+    with open(output_file, "wb") as f:
+        pickle.dump(data, f)
 
 
 '''
@@ -86,24 +87,24 @@ for note in tokens:
     print(note)
 '''
 
-audio, sr = librosa.load("./Training_Data/Yaman/segments/yaman-rajurkar_part35.wav", sr=None)
-f0, voiced_flag, voiced_prob = librosa.pyin(audio, fmin=librosa.note_to_hz('C2'), fmax=librosa.note_to_hz('C7'))
-tokens = hz_to_midi_token(f0)
-
-print("Created midi!")
-
-import time
-import fluidsynth
-
-fs = fluidsynth.Synth()
-fs.start()  # defaults to pulseaudio or alsa depending on your system
-
-sfid = fs.sfload("/usr/share/soundfonts/FluidR3_GM.sf2")  # adjust path if needed
-fs.program_select(0, sfid, 0, 0)
-
-for note in tokens:
-    fs.noteon(0, note, 100)
-    time.sleep(0.2)
-    fs.noteoff(0, note)
-
-fs.delete()
+# audio, sr = librosa.load("./Training_Data/Yaman/segments/yaman-rajurkar_part35.wav", sr=None)
+# f0, voiced_flag, voiced_prob = librosa.pyin(audio, fmin=librosa.note_to_hz('C2'), fmax=librosa.note_to_hz('C7'))
+# tokens = hz_to_midi_token(f0)
+# 
+# print("Created midi!")
+# 
+# import time
+# import fluidsynth
+# 
+# fs = fluidsynth.Synth()
+# fs.start()  # defaults to pulseaudio or alsa depending on your system
+# 
+# sfid = fs.sfload("/usr/share/soundfonts/FluidR3_GM.sf2")  # adjust path if needed
+# fs.program_select(0, sfid, 0, 0)
+# 
+# for note in tokens:
+#     fs.noteon(0, note, 100)
+#     time.sleep(0.2)
+#     fs.noteoff(0, note)
+# 
+# fs.delete()

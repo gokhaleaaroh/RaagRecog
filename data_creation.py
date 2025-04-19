@@ -36,5 +36,4 @@ def spl(input_dir):
     print("Done splitting all files.")
 
 
-spl("./Training_Data/Marwa/Marwa-wav/")
-spl("./Training_Data/Kalavati/Kalavati-wav/")
+spl("./Training_Data/Yaman-discard/Yaman-wav/")

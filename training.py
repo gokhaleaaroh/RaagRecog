@@ -62,39 +62,97 @@ max_len = max(len(seq) for seq in sequences)
 padded_seqs = pad_sequences(sequences, max_len)
 one_hot_labels = one_hot_encode(labels)
 
-seq_tensor = torch.tensor(padded_seqs, dtype=torch.long) + offset
-label_tensor = torch.tensor(one_hot_labels, dtype=torch.float32)
+total_samples = len(padded_seqs)
+window_size = int(0.2 * total_samples)
+results = []
+val_iter = 1
 
-dataset = TensorDataset(seq_tensor, label_tensor)
-data_loader = DataLoader(dataset, batch_size=32, shuffle=True)
+for start in range(0, total_samples - window_size + 1, window_size):  # non-overlapping windows
+    end = start + window_size
 
-recognizer = RaagRecog(vocab_size, EMBEDDING_DIM, hidden_dim=64, fc_dim=64,
-                       num_classes=4, padding_idx=0)
+    perm = np.random.permutation(total_samples)
 
-loss_func = torch.nn.CrossEntropyLoss()
-optimizer = optim.Adam(recognizer.parameters(), lr=0.001)
+    padded_seqs_shuffled = padded_seqs[perm]
+    labels_shuffled = one_hot_labels[perm]
 
-num_epochs = 1000
-for epoch in range(num_epochs):
-    recognizer.train()
-    curr_loss = 0.0
+    seq_tensor = torch.tensor(padded_seqs_shuffled, dtype=torch.long) + offset
+    label_tensor = torch.tensor(labels_shuffled, dtype=torch.float32)
 
-    optimizer.zero_grad()
-    for inputs, targets in data_loader:
+    # Split validation window
+    s_val = seq_tensor[start:end]
+    l_val = label_tensor[start:end]
+
+    # Remaining is training
+    s_train = torch.cat([seq_tensor[:start], seq_tensor[end:]], dim=0)
+    l_train = torch.cat([label_tensor[:start], label_tensor[end:]], dim=0)
+
+    train_loader = DataLoader(TensorDataset(s_train, l_train), batch_size=32, shuffle=True)
+    val_loader = DataLoader(TensorDataset(s_val, l_val), batch_size=32)
+
+    # Reinitialize model, optimizer for each run
+    recognizer = RaagRecog(vocab_size, EMBEDDING_DIM, hidden_dim=64, fc_dim=64,
+                           num_classes=4, padding_idx=0)
+
+    loss_func = torch.nn.CrossEntropyLoss()
+    optimizer = optim.Adam(recognizer.parameters(), lr=0.001)
+
+    num_epochs = 300
+    for epoch in range(num_epochs):
+        recognizer.train()
+        curr_loss = 0.0
+
         optimizer.zero_grad()
-        outputs = recognizer(inputs)
+        for inputs, targets in train_loader:
+            optimizer.zero_grad()
+            outputs = recognizer(inputs)
 
-        loss = loss_func(outputs, targets)
-        loss.backward()
-        optimizer.step()
-        curr_loss += loss.item()
+            loss = loss_func(outputs, targets)
+            loss.backward()
+            optimizer.step()
+            curr_loss += loss.item()
+            avg_loss = curr_loss/len(train_loader)
+        if ((epoch + 1) % 100 == 0):
+            print(f"Validation Iteration: {val_iter}, Epoch {epoch + 1}, Loss: {avg_loss:.4f}")
 
-    avg_loss = curr_loss/len(data_loader)
+    val_iter += 1
+    recognizer.eval()
+    correct, total = 0, 0
+    yaman_correct, yaman_total = 0, 0
+    darbari_correct, darbari_total = 0, 0
+    marwa_correct, marwa_total = 0, 0
+    kalavati_correct, kalavati_total = 0, 0
+    with torch.no_grad():
+        for inputs, targets in val_loader:
+            outputs = recognizer(inputs)
+            preds = torch.argmax(outputs, dim=1)
+            labels = torch.argmax(targets, dim=1)
+            correct += (preds == labels).sum().item()
+            total += labels.size(0)
 
-    if epoch % 50 == 0:
-        print(f"Epoch {epoch + 1}, Loss: {avg_loss:.4f}")
-    if (epoch + 1) % 100 == 0:
-        torch.save(recognizer.state_dict(), f"model_weights{epoch}.pth")
+            yaman_correct += ((preds == labels) & (preds == 0)).sum().item()
+            yaman_total += (preds == 0).sum().item()
 
+            darbari_correct += ((preds == labels) & (preds == 1)).sum().item()
+            darbari_total += (preds == 1).sum().item()
 
-torch.save(recognizer.state_dict(), "model_weights.pth")
+            marwa_correct += ((preds == labels) & (preds == 2)).sum().item()
+            marwa_total += (preds == 2).sum().item()
+
+            kalavati_correct += ((preds == labels) & (preds == 3)).sum().item()
+            kalavati_total += (preds == 3).sum().item()
+
+        acc = correct / total
+        yaman_acc = yaman_correct / yaman_total
+        darbari_acc = darbari_correct / darbari_total
+        marwa_acc = marwa_correct / marwa_total
+        kalavati_acc = kalavati_correct / kalavati_total
+        results.append(acc)
+        print(f"Validation window {start}:{end}, Accuracy = {acc:.4f}")
+        print("Printing Individual Raag Accuracies...")
+        print(f"Validation window {start}:{end}, Yaman Accuracy = {yaman_acc:.4f}")
+        print(f"Validation window {start}:{end}, Darbari Accuracy = {darbari_acc:.4f}")
+        print(f"Validation window {start}:{end}, Marwa Accuracy = {marwa_acc:.4f}")
+        print(f"Validation window {start}:{end}, Kalavati Accuracy = {kalavati_acc:.4f}")
+
+avg_acc = sum(results) / len(results)
+print(f"\nAverage cross-validation accuracy = {avg_acc:.4f}")

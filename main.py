@@ -60,10 +60,14 @@ if os.path.exists("./model_weights.pth"):
 
     input_tensor = torch.tensor(padded_yaman_discard, dtype=torch.long) + offset
 
+    raag_list = ["Yaman", "Darbari", "Marwa", "Kalavati"]
+
     with torch.no_grad():
         output = recognizer(input_tensor)
         total_correct = 0
         percent_array = np.array([0.0, 0.0, 0.0, 0.0])
         for ind in range(len(output)):
             if (torch.argmax(output[ind]) != 0):
-                print(ind)
+                answer = torch.argmax(output[ind])
+                print(ind,
+                      " ", raag_list[answer], "confidence: ", output[ind])

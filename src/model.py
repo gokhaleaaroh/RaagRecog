@@ -6,14 +6,14 @@ class RaagRecog(nn.Module):
     def __init__(self, hidden_size, num_classes):
         super().__init__()
         self.conv_net = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, stride=1, padding=1),  # keeps [n_mels, time] size
+            nn.Conv2d(in_channels=1, out_channels=64, kernel_size=3, stride=1, padding=1),  # keeps [n_mels, time] size
             nn.ReLU(),
             # nn.MaxPool2d(kernel_size=(2, 1)),
             # nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1),
             # nn.ReLU(),
             nn.AdaptiveAvgPool2d((1, None))  # collapse mel axis, keep time axis
         )
-        self.lstm = nn.LSTM(32, hidden_size, batch_first=True, bidirectional=False)
+        self.lstm = nn.LSTM(64, hidden_size, batch_first=True, bidirectional=False)
         self.fc = nn.Linear(hidden_size, num_classes)
 
     def forward(self, x):

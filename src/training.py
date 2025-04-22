@@ -155,7 +155,7 @@ for start in range(0, total_samples - window_size + 1, window_size):  # non-over
                 print(f"Validation window {start}:{end}, Marwa Accuracy = {marwa_acc:.4f}")
                 print(f"Validation window {start}:{end}, Kalavati Accuracy = {kalavati_acc:.4f}")
 
-                torch.save(recognizer.state_dict(), f'model_weights{epoch + 1}.pth')
+                torch.save(recognizer.state_dict(), f'iter2_model_weights{epoch + 1}.pth')
 
             recognizer.train()
 

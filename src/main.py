@@ -85,10 +85,8 @@ if os.path.exists("./model_weights200.pth"):
                 if (torch.argmax(outputs[ind]) != 0):
                     answer = torch.argmax(outputs[ind])
                     # print(ind,
-                     #     " ", raag_list[answer], "confidence: ", outputs[ind])
+                    #     " ", raag_list[answer], "confidence: ", outputs[ind])
                 else:
                     total_correct+=1
 
         print(f"Accuracy: {total_correct/len(input_tensor)}")
-
-            

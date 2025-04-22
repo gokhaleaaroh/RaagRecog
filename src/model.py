@@ -3,19 +3,24 @@ import torch.nn as nn
 
 
 class RaagRecog(nn.Module):
-    def __init__(self, vocab_size, embedding_dim, hidden_dim, fc_dim, num_classes, padding_idx):
+    def __init__(self, hidden_size, num_classes):
         super().__init__()
-        self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=padding_idx)
-        self.lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
-        self.global_pool = nn.AdaptiveAvgPool1d(1)
-        self.fc1 = nn.Linear(hidden_dim, fc_dim)
-        self.fc2 = nn.Linear(fc_dim, num_classes)
+        self.conv_net = nn.Sequential(
+            nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, stride=1, padding=1),  # keeps [n_mels, time] size
+            nn.ReLU(),
+            # nn.MaxPool2d(kernel_size=(2, 1)),
+            # nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1),
+            # nn.ReLU(),
+            nn.AdaptiveAvgPool2d((1, None))  # collapse mel axis, keep time axis
+        )
+        self.lstm = nn.LSTM(32, hidden_size, batch_first=True, bidirectional=False)
+        self.fc = nn.Linear(hidden_size, num_classes)
 
     def forward(self, x):
-        x = self.embedding(x)  # shape: (batch, seq_len, embedding_dim)
-        x, _ = self.lstm(x)    # shape: (batch, seq_len, hidden_dim)
-        x = x.transpose(1, 2)  # (batch, hidden_dim, seq_len) for pooling
-        x = self.global_pool(x).squeeze(-1)  # (batch, hidden_dim)
-        x = self.fc1(x)
-        x = self.fc2(x)
-        return x
+        x = self.conv_net(x)
+        x = x.squeeze(2)
+        x = x.permute(0, 2, 1)
+        output, (h_n, c) = self.lstm(x)
+        h_n = h_n.permute(1, 0, 2)
+        h_n = h_n.reshape(h_n.size()[0], -1)
+        return self.fc(h_n)

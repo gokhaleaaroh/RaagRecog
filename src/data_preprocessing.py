@@ -6,11 +6,11 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 dir_list = [
-    # "./Training_Data/Yaman/segments",
-    # "./Training_Data/Darbari/segments",
-    # "./Training_Data/Kalavati/segments",
-    # "./Training_Data/Marwa/segments",
-    "./Training_Data/Yaman-discard/segments",
+    # "../Training_Data/Yaman/segments",
+    # "../Training_Data/Darbari/segments",
+    # "../Training_Data/Kalavati/segments",
+    # "../Training_Data/Marwa/segments",
+    "../Training_Data/Yaman-discard/segments",
 ]
 
 
@@ -48,63 +48,24 @@ def relative_pitch(tokens):
 #         pickle.dump(dir_dict[dir_name], f)
 
 
-def process_clip(path):
-    audio, sr = librosa.load(path, sr=None)
-    f0, voiced_flag, voiced_prob = librosa.pyin(audio, fmin=librosa.note_to_hz('C2'), fmax=librosa.note_to_hz('C7'))
-    tokens = hz_to_midi_token(f0)
-    normalized_tokens = relative_pitch(tokens)
-    return normalized_tokens
+def gen_mel(path):
+    audio, sr = librosa.load(path)  # sr is the sampling rate
+    S = librosa.feature.melspectrogram(y=audio, sr=sr, n_mels=128)
+    S_dB = librosa.power_to_db(S, ref=np.max)
+    return S_dB
 
 
 def parallel_preprocess(directory, num_workers):
     files = list(Path(directory).glob("*.wav"))
 
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
-        results = executor.map(process_clip, files)
+        results = executor.map(gen_mel, files)
 
     return list(results)
 
 
 for dir_name in dir_list:
     data = parallel_preprocess(dir_name, 8)
-    output_file = f"{dir_name}/units.pkl"
+    output_file = f"{dir_name}/mels.pkl"
     with open(output_file, "wb") as f:
         pickle.dump(data, f)
-
-
-'''
-import pygame.midi
-import time
-
-pygame.midi.init()
-player = pygame.midi.Output(0)
-player.set_instrument(0)
-
-for note in tokens:
-    # player.note_on(note, 100)
-    # time.sleep(0.2)
-    # player.note_off(note, 100)
-    print(note)
-'''
-
-# audio, sr = librosa.load("./Training_Data/Yaman/segments/yaman-rajurkar_part35.wav", sr=None)
-# f0, voiced_flag, voiced_prob = librosa.pyin(audio, fmin=librosa.note_to_hz('C2'), fmax=librosa.note_to_hz('C7'))
-# tokens = hz_to_midi_token(f0)
-# 
-# print("Created midi!")
-# 
-# import time
-# import fluidsynth
-# 
-# fs = fluidsynth.Synth()
-# fs.start()  # defaults to pulseaudio or alsa depending on your system
-# 
-# sfid = fs.sfload("/usr/share/soundfonts/FluidR3_GM.sf2")  # adjust path if needed
-# fs.program_select(0, sfid, 0, 0)
-# 
-# for note in tokens:
-#     fs.noteon(0, note, 100)
-#     time.sleep(0.2)
-#     fs.noteoff(0, note)
-# 
-# fs.delete()

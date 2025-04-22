@@ -1,0 +1,35 @@
+Validation Iteration: 1, Epoch 50, Loss: 1.3094
+Validation window 0:833, Accuracy = 0.3481
+Printing Individual Raag Accuracies...
+Validation window 0:833, Yaman Accuracy = 0.3274
+Validation window 0:833, Darbari Accuracy = 0.2956
+Validation window 0:833, Marwa Accuracy = 0.8235
+Validation window 0:833, Kalavati Accuracy = 0.5000
+Validation Iteration: 2, Epoch 100, Loss: 1.1683
+Validation window 0:833, Accuracy = 0.4886
+Printing Individual Raag Accuracies...
+Validation window 0:833, Yaman Accuracy = 0.4179
+Validation window 0:833, Darbari Accuracy = 0.6310
+Validation window 0:833, Marwa Accuracy = 0.6667
+Validation window 0:833, Kalavati Accuracy = 0.3125
+Validation Iteration: 3, Epoch 150, Loss: 1.0641
+Validation window 0:833, Accuracy = 0.5846
+Printing Individual Raag Accuracies...
+Validation window 0:833, Yaman Accuracy = 0.6824
+Validation window 0:833, Darbari Accuracy = 0.6198
+Validation window 0:833, Marwa Accuracy = 0.5583
+Validation window 0:833, Kalavati Accuracy = 0.3729
+Validation Iteration: 4, Epoch 200, Loss: 0.9646
+Validation window 0:833, Accuracy = 0.5954
+Printing Individual Raag Accuracies...
+Validation window 0:833, Yaman Accuracy = 0.6156
+Validation window 0:833, Darbari Accuracy = 0.7697
+Validation window 0:833, Marwa Accuracy = 0.5670
+Validation window 0:833, Kalavati Accuracy = 0.3869
+Validation Iteration: 5, Epoch 250, Loss: 0.9726
+Validation window 0:833, Accuracy = 0.5894
+Printing Individual Raag Accuracies...
+Validation window 0:833, Yaman Accuracy = 0.5414
+Validation window 0:833, Darbari Accuracy = 0.7000
+Validation window 0:833, Marwa Accuracy = 0.6193
+Validation window 0:833, Kalavati Accuracy = 0.3521
